@@ -39,6 +39,18 @@ sed -i 's/mmcblk0/mmcblk1/g' "$MNT/etc/fstab"
 sed -Ei 's/#?PermitRootLogin.+/PermitRootLogin prohibit-password/' "$MNT/etc/ssh/sshd_config"
 sed -Ei 's/#?PasswordAuthentication.+/PasswordAuthentication no/' "$MNT/etc/ssh/sshd_config"
 
+# eth+serial over USB
+echo g_cdc > "$MNT/etc/modules-load.d/g_cdc.conf"
+mkdir -p "$MNT/etc/systemd/system/getty.target.wants/"
+ln -sf /usr/lib/systemd/system/serial-getty@.service "$MNT/etc/systemd/system/getty.target.wants/serial-getty@ttyGS0.service"
+cat > "$MNT/etc/systemd/network/80-usb.network" <<EOF
+[Match]
+Name=usb*
+
+[Network]
+MulticastDNS=yes
+EOF
+
 if [ -f ~/.ssh/id_rsa.pub ]; then
   mkdir -p "$MNT/root/.ssh"
   cp ~/.ssh/id_rsa.pub $MNT/root/.ssh/authorized_keys
