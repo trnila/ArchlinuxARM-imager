@@ -35,6 +35,10 @@ curl -L http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz | t
 
 sed -i 's/mmcblk0/mmcblk1/g' "$MNT/etc/fstab"
 
+# allow only ssh key auth and root user
+sed -Ei 's/#?PermitRootLogin.+/PermitRootLogin prohibit-password/' "$MNT/etc/ssh/sshd_config"
+sed -Ei 's/#?PasswordAuthentication.+/PasswordAuthentication no/' "$MNT/etc/ssh/sshd_config"
+
 if [ -f ~/.ssh/id_rsa.pub ]; then
   mkdir -p "$MNT/root/.ssh"
   cp ~/.ssh/id_rsa.pub $MNT/root/.ssh/authorized_keys
